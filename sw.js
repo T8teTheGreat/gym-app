@@ -4,7 +4,10 @@ const ASSETS = [
   '/index.html',
   '/style.css',
   '/app.js',
-  '/data/exercises.js'
+  '/data/exercises.js',
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png'
 ];
 
 // Install event: Cache the core files
