@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <link rel="manifest" href="manifest.json">
+    <title>Minimal Gym</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 id="view-title">Library</h1>
+            <button id="dark-mode-toggle" class="dark-mode-toggle history-toggle">☀️</button>
+        </header>
+
+        <main id="main-content">
+            <!-- Library View -->
+            <section id="view-library">
+                <input type="text" id="search-input" placeholder="Search exercises...">
+                <select id="muscle-filter">
+                    <option value="all">All Muscle Groups</option>
+                    <!-- Options populated by JS -->
+                </select>
+                <div id="library-grid"></div>
+            </section>
+
+            <!-- Logger View -->
+            <section id="view-logger" class="hidden">
+                <div id="workout-name-input-container">
+                    <input type="text" id="workout-name-input" placeholder="e.g. Chest Day, Morning Session" style="margin-top: 4px; border-color: var(--border);">
+                </div>
+                <div id="workout-exercises-list"></div>
+                <label>Select Exercise</label>
+                <select id="select-exercise"></select>
+                <select id="select-variation" class="hidden"></select>
+                
+                <div id="exercise-info" class="info-box">
+                    Select an exercise to see details.
+                </div>
+
+                <div id="sets-container">
+                    <!-- Sets added here dynamically -->
+                </div>
+                <button class="btn btn-add" onclick="addSet()">+ Add Set</button>
+                <button class="btn btn-primary" style="margin-top: 10px;" onclick="addExerciseToWorkout()">+ Add Exercise</button>
+                <button class="btn btn-secondary" style="margin-top: 10px;" onclick="saveWorkout()">Save Workout</button>
+            </section>
+
+            <!-- History View -->
+            <section id="view-history" class="hidden">
+                <div id="history-list"></div>
+            </section>
+        </main>
+
+        <nav>
+            <button class="nav-item" id="nav-lib" onclick="showView('library')">
+                <span>Library</span>
+            </button>
+            <button class="nav-item" id="nav-log" onclick="showView('logger')">
+                <span>Log</span>
+            </button>
+            <button class="nav-item" id="nav-hist" onclick="showView('history')">
+                <span>History</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Script tags ordered correctly to avoid fetch CORS blocks on file:// -->
+    <div id="toast-container"></div>
+    <script src="data/exercises.js"></script>
+    <script src="app.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then(reg => {
+            console.log('Service Worker registered');
+          }).catch(err => {
+            console.error('Service Worker registration failed:', err);
+          });
+        });
+      }
+    </script>
+</body>
+</html>
