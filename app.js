@@ -1,4 +1,5 @@
 // app.js
+import { EXERCISES_DATA } from './data/exercises.js';
 import { store } from './store.js';
 import { showView } from './navigation.js';
 import { populateMuscleFilter, renderLibrary, filterLibrary } from './pages/library.js';
@@ -11,10 +12,6 @@ import { loadHistory } from './pages/history.js';
 
 function init() {
     try {
-        if (typeof EXERCISES_DATA === 'undefined') {
-            throw new Error('EXERCISES_DATA not found. Make sure data/exercises.js is loaded before app.js.');
-        }
-
         store.EXERCISES = EXERCISES_DATA;
         
         const selectExercise = document.getElementById('select-exercise');

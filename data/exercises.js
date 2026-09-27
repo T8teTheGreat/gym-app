@@ -1,4 +1,4 @@
-const EXERCISES_DATA = [
+export const EXERCISES_DATA = [
   { "id": "pec-bb-bench", "group_id": "bench-press", "group_name": "Bench Press", "is_default": true, "name": "Barbell Bench Press", "description": "Standard barbell press for chest mass.", "equipment": "Barbell", "primary_muscles": ["Pectoral"], "secondary_muscles": ["Triceps", "Anterior Deltoid"] },
   { "id": "pec-db-bench", "group_id": "bench-press", "group_name": "Bench Press", "is_default": false, "name": "Dumbbell Bench Press", "description": "Chest press using dumbbells for a greater range of motion.", "equipment": "Dumbbells", "primary_muscles": ["Pectoral"], "secondary_muscles": ["Triceps", "Anterior Deltoid"] },
   { "id": "pec-incline-bb", "group_id": "incline-bench-press", "group_name": "Incline Bench Press", "is_default": true, "name": "Incline Barbell Press", "description": "Targets the upper pectoral muscles.", "equipment": "Barbell", "primary_muscles": ["Pectoral"], "secondary_muscles": ["Triceps", "Anterior Deltoid"] },
