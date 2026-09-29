@@ -45,14 +45,6 @@ export function updateLoggerUI(searchQuery) {
     const query = searchQuery !== undefined ? searchQuery : (loggerExerciseSearch ? loggerExerciseSearch.value : '');
     const groupId = selectExercise ? selectExercise.value : '';
 
-    // Attach search input listener automatically if not already attached
-    if (loggerExerciseSearch && !loggerExerciseSearch.dataset.listenerAttached) {
-        loggerExerciseSearch.addEventListener('input', (e) => {
-            updateLoggerUI(e.target.value);
-        });
-        loggerExerciseSearch.dataset.listenerAttached = 'true';
-    }
-
     if (loggerExerciseResults) {
         loggerExerciseResults.innerHTML = '';
         loggerExerciseResults.style.display = 'none';
@@ -81,11 +73,14 @@ export function updateLoggerUI(searchQuery) {
                 <div style="font-weight: bold;">${escapeHTML(ex.name)}</div>
                 <div style="font-size: 0.8rem; color: var(--text-light);">${escapeHTML(ex.description ? ex.description.substring(0, 40) : '')}...</div>
             `;
+
+            // FIX: Hide results dropdown and select exercise immediately
             item.onclick = () => {
                 if (loggerExerciseSearch) loggerExerciseSearch.value = '';
                 if (loggerExerciseResults) loggerExerciseResults.style.display = 'none';
                 selectExerciseFromResults(ex);
             };
+
             loggerExerciseResults.appendChild(item);
         });
     } else if (loggerExerciseResults) {
