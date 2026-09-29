@@ -278,6 +278,16 @@ export function syncCurrentSetsToList() {
         if (listIndex > -1) {
             store.currentWorkoutExercises[listIndex].sets = store.currentSets.map(set => ({ ...set }));
             renderWorkoutList();
+        } else if (store.currentSets.length > 0) {
+            // Exercise not in list, add it automatically
+            store.currentWorkoutExercises.push({
+                id: store.selectedExercise.id,
+                group_id: store.selectedExercise.group_id,
+                variation_id: store.selectedExercise.id,
+                exerciseName: store.selectedExercise.name,
+                sets: store.currentSets.map(set => ({ ...set }))
+            });
+            renderWorkoutList();
         }
     }
 }
