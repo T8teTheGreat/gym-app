@@ -106,30 +106,31 @@ export function selectExerciseFromResults(ex) {
         `;
     }
 
-    // Check if exercise already exists in current workout array
+    // Find or automatically create the exercise in store.currentWorkoutExercises
     let existingInList = store.currentWorkoutExercises.find(item => item.id === ex.id);
 
-    if (existingInList) {
-        // Load existing sets into state
-        store.currentSets = existingInList.sets.map(set => ({ ...set }));
-    } else {
-        // Initialize active set state with a single default set
-        store.currentSets = [{
-            weight: '',
-            reps: '',
-            unit: getExerciseUnit(ex.id),
-            completed: false
-        }];
-
-        // Automatically push new exercise to currentWorkoutExercises array
-        store.currentWorkoutExercises.push({
+    if (!existingInList) {
+        existingInList = {
             id: ex.id,
             group_id: ex.group_id,
             variation_id: ex.variation_id,
             exerciseName: ex.name,
-            sets: store.currentSets.map(set => ({ ...set }))
-        });
+            sets: [{
+                weight: '',
+                reps: '',
+                unit: getExerciseUnit(ex.id),
+                completed: false
+            }]
+        };
+        store.currentWorkoutExercises.push(existingInList);
     }
+
+    // Point store.currentSets DIRECTLY to the workout exercise's sets array reference
+    store.currentSets = existingInList.sets;
+
+    renderSets();
+    renderWorkoutList();
+}
 
     // Refresh UI components immediately
     renderSets();
@@ -328,16 +329,15 @@ export function syncCurrentSetsToList() {
     if (store.selectedExercise) {
         const listIndex = store.currentWorkoutExercises.findIndex(ex => ex.id === store.selectedExercise.id);
         if (listIndex > -1) {
-            store.currentWorkoutExercises[listIndex].sets = store.currentSets.map(set => ({ ...set }));
+            store.currentWorkoutExercises[listIndex].sets = store.currentSets;
             renderWorkoutList();
         } else if (store.currentSets.length > 0) {
-            // Exercise not in list, add it automatically
             store.currentWorkoutExercises.push({
                 id: store.selectedExercise.id,
                 group_id: store.selectedExercise.group_id,
                 variation_id: store.selectedExercise.variation_id,
                 exerciseName: store.selectedExercise.name,
-                sets: store.currentSets.map(set => ({ ...set }))
+                sets: store.currentSets
             });
             renderWorkoutList();
         }
