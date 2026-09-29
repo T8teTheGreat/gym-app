@@ -63,7 +63,8 @@ export function updateLoggerUI(searchQuery) {
         );
     }
 
-    if (query && filteredExercises.length > 0) {
+    // FIX 1: Allow results to display when an exercise group is selected without search text
+    if ((query || groupId) && filteredExercises.length > 0) {
         loggerExerciseResults.style.display = 'block';
         filteredExercises.forEach(ex => {
             const item = document.createElement('div');
@@ -133,6 +134,21 @@ export function renderSets() {
             <button class="btn remove-set-btn" data-index="${index}" style="width: auto; padding: 8px 12px; flex-shrink: 0;">×</button>
         `;
         setsContainer.appendChild(row);
+    });
+
+    // FIX 3: Bind input field changes back to store.currentSets
+    setsContainer.querySelectorAll('.weight-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const index = e.target.getAttribute('data-index');
+            store.currentSets[index].weight = e.target.value;
+        });
+    });
+
+    setsContainer.querySelectorAll('.reps-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const index = e.target.getAttribute('data-index');
+            store.currentSets[index].reps = e.target.value;
+        });
     });
 }
 
@@ -240,6 +256,18 @@ export function renderWorkoutList() {
 }
 
 export function removeExerciseFromWorkout(index) {
+    // FIX 2: Clear active exercise selection if removing the exercise currently being edited
+    const removedEx = store.currentWorkoutExercises[index];
+    if (store.selectedExercise && removedEx.id === store.selectedExercise.id) {
+        store.selectedExercise = null;
+        store.currentSets = [];
+        const exerciseInfo = document.getElementById('exercise-info');
+        if (exerciseInfo) exerciseInfo.innerHTML = '';
+        const selectExercise = document.getElementById('select-exercise');
+        if (selectExercise) selectExercise.value = "";
+        updateLoggerUI();
+    }
+
     store.currentWorkoutExercises.splice(index, 1);
     renderWorkoutList();
 }
@@ -254,7 +282,7 @@ export function addExerciseToWorkout() {
     const exerciseData = {
         id: store.selectedExercise.id,
         group_id: store.selectedExercise.group_id,
-        variation_id: store.selectedExercise.id,
+        variation_id: store.selectedExercise.variation_id, // FIX 4: Corrected to store.selectedExercise.variation_id
         exerciseName: store.selectedExercise.name,
         sets: store.currentSets.map(set => ({ ...set }))
     };
@@ -283,7 +311,7 @@ export function syncCurrentSetsToList() {
             store.currentWorkoutExercises.push({
                 id: store.selectedExercise.id,
                 group_id: store.selectedExercise.group_id,
-                variation_id: store.selectedExercise.id,
+                variation_id: store.selectedExercise.variation_id,
                 exerciseName: store.selectedExercise.name,
                 sets: store.currentSets.map(set => ({ ...set }))
             });
