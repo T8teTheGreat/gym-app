@@ -96,20 +96,44 @@ export function selectExerciseFromResults(ex) {
     if (selectExercise) {
         selectExercise.value = ex.group_id;
     }
-    document.getElementById('exercise-info').innerHTML = `
-        <strong style="font-size: 1.2rem;">${escapeHTML(ex.name)}</strong><br>
-        ${escapeHTML(ex.description)}<br>
-        <small>Equipment: ${escapeHTML(ex.equipment)}</small>
-    `;
-
-    const existingInList = store.currentWorkoutExercises.find(item => item.id === ex.id);
-    if (existingInList && store.currentSets.length === 0 && existingInList.sets.length > 0) {
-        store.currentSets = existingInList.sets.map(set => ({ ...set }));
-    } else if (store.currentSets.length === 0) {
-        addSet();
+    
+    const exerciseInfo = document.getElementById('exercise-info');
+    if (exerciseInfo) {
+        exerciseInfo.innerHTML = `
+            <strong style="font-size: 1.2rem;">${escapeHTML(ex.name)}</strong><br>
+            ${escapeHTML(ex.description)}<br>
+            <small>Equipment: ${escapeHTML(ex.equipment)}</small>
+        `;
     }
 
-    if (store.selectedExercise) renderSets();
+    // Check if exercise already exists in current workout array
+    let existingInList = store.currentWorkoutExercises.find(item => item.id === ex.id);
+
+    if (existingInList) {
+        // Load existing sets into state
+        store.currentSets = existingInList.sets.map(set => ({ ...set }));
+    } else {
+        // Initialize active set state with a single default set
+        store.currentSets = [{
+            weight: '',
+            reps: '',
+            unit: getExerciseUnit(ex.id),
+            completed: false
+        }];
+
+        // Automatically push new exercise to currentWorkoutExercises array
+        store.currentWorkoutExercises.push({
+            id: ex.id,
+            group_id: ex.group_id,
+            variation_id: ex.variation_id,
+            exerciseName: ex.name,
+            sets: store.currentSets.map(set => ({ ...set }))
+        });
+    }
+
+    // Refresh UI components immediately
+    renderSets();
+    renderWorkoutList();
 }
 
 export function renderSets() {
