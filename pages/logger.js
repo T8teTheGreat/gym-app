@@ -43,14 +43,14 @@ export function updateLoggerUI(searchQuery) {
     const loggerExerciseSearch = document.getElementById('logger-exercise-search');
     const loggerExerciseResults = document.getElementById('logger-exercise-results');
     const query = searchQuery !== undefined ? searchQuery : (loggerExerciseSearch ? loggerExerciseSearch.value : '');
-    const groupId = selectExercise.value;
+    const groupId = selectExercise ? selectExercise.value : '';
 
     if (loggerExerciseResults) {
         loggerExerciseResults.innerHTML = '';
         loggerExerciseResults.style.display = 'none';
     }
 
-    let filteredExercises = store.EXERCISES;
+    let filteredExercises = store.EXERCISES || [];
     
     if (groupId) {
         filteredExercises = filteredExercises.filter(ex => ex.group_id == groupId);
@@ -59,11 +59,10 @@ export function updateLoggerUI(searchQuery) {
     if (query) {
         filteredExercises = filteredExercises.filter(ex => 
             ex.name.toLowerCase().includes(query.toLowerCase()) ||
-            ex.description.toLowerCase().includes(query.toLowerCase())
+            (ex.description && ex.description.toLowerCase().includes(query.toLowerCase()))
         );
     }
 
-    // FIX 1: Allow results to display when an exercise group is selected without search text
     if ((query || groupId) && filteredExercises.length > 0) {
         loggerExerciseResults.style.display = 'block';
         filteredExercises.forEach(ex => {
@@ -72,13 +71,16 @@ export function updateLoggerUI(searchQuery) {
             item.style.cssText = 'padding: 10px 12px; border-bottom: 1px solid var(--border); cursor: pointer;';
             item.innerHTML = `
                 <div style="font-weight: bold;">${escapeHTML(ex.name)}</div>
-                <div style="font-size: 0.8rem; color: var(--text-light);">${escapeHTML(ex.description.substring(0, 40))}...</div>
+                <div style="font-size: 0.8rem; color: var(--text-light);">${escapeHTML(ex.description ? ex.description.substring(0, 40) : '')}...</div>
             `;
+
+            // FIX: Hide results dropdown and select exercise immediately
             item.onclick = () => {
-                selectExerciseFromResults(ex);
                 if (loggerExerciseSearch) loggerExerciseSearch.value = '';
-                updateLoggerUI();
+                if (loggerExerciseResults) loggerExerciseResults.style.display = 'none';
+                selectExerciseFromResults(ex);
             };
+
             loggerExerciseResults.appendChild(item);
         });
     } else if (loggerExerciseResults) {
