@@ -23,12 +23,8 @@ function init() {
             if (loggerExerciseSearch) loggerExerciseSearch.value = '';
             store.currentSets = [];
             updateLoggerUI();
-        });
+        });        
         
-        if (loggerExerciseSearch) {
-            loggerExerciseSearch.addEventListener('input', () => updateLoggerUI());
-        }
-
         setsContainer.addEventListener('input', (e) => {
             const index = parseInt(e.target.dataset.index, 10);
             if (isNaN(index)) return;

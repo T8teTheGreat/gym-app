@@ -45,6 +45,14 @@ export function updateLoggerUI(searchQuery) {
     const query = searchQuery !== undefined ? searchQuery : (loggerExerciseSearch ? loggerExerciseSearch.value : '');
     const groupId = selectExercise ? selectExercise.value : '';
 
+    // Attach search input listener automatically if not already attached
+    if (loggerExerciseSearch && !loggerExerciseSearch.dataset.listenerAttached) {
+        loggerExerciseSearch.addEventListener('input', (e) => {
+            updateLoggerUI(e.target.value);
+        });
+        loggerExerciseSearch.dataset.listenerAttached = 'true';
+    }
+
     if (loggerExerciseResults) {
         loggerExerciseResults.innerHTML = '';
         loggerExerciseResults.style.display = 'none';
@@ -73,14 +81,11 @@ export function updateLoggerUI(searchQuery) {
                 <div style="font-weight: bold;">${escapeHTML(ex.name)}</div>
                 <div style="font-size: 0.8rem; color: var(--text-light);">${escapeHTML(ex.description ? ex.description.substring(0, 40) : '')}...</div>
             `;
-
-            // FIX: Hide results dropdown and select exercise immediately
             item.onclick = () => {
                 if (loggerExerciseSearch) loggerExerciseSearch.value = '';
                 if (loggerExerciseResults) loggerExerciseResults.style.display = 'none';
                 selectExerciseFromResults(ex);
             };
-
             loggerExerciseResults.appendChild(item);
         });
     } else if (loggerExerciseResults) {
@@ -103,12 +108,11 @@ export function selectExerciseFromResults(ex) {
     if (exerciseInfo) {
         exerciseInfo.innerHTML = `
             <strong style="font-size: 1.2rem;">${escapeHTML(ex.name)}</strong><br>
-            ${escapeHTML(ex.description)}<br>
-            <small>Equipment: ${escapeHTML(ex.equipment)}</small>
+            ${escapeHTML(ex.description || '')}<br>
+            <small>Equipment: ${escapeHTML(ex.equipment || '')}</small>
         `;
     }
 
-    // Find or automatically create the exercise in store.currentWorkoutExercises
     let existingInList = store.currentWorkoutExercises.find(item => item.id === ex.id);
 
     if (!existingInList) {
@@ -127,20 +131,16 @@ export function selectExerciseFromResults(ex) {
         store.currentWorkoutExercises.push(existingInList);
     }
 
-    // Point store.currentSets DIRECTLY to the workout exercise's sets array reference
+    // Direct reference linkage
     store.currentSets = existingInList.sets;
 
     renderSets();
     renderWorkoutList();
 }
 
-    // Refresh UI components immediately
-    renderSets();
-    renderWorkoutList();
-}
-
 export function renderSets() {
     const setsContainer = document.getElementById('sets-container');
+    if (!setsContainer) return;
     setsContainer.innerHTML = '';
     const currentUnit = store.selectedExercise ? getExerciseUnit(store.selectedExercise.id) : 'kg';
 
@@ -163,7 +163,6 @@ export function renderSets() {
         setsContainer.appendChild(row);
     });
 
-    // FIX 3: Bind input field changes back to store.currentSets
     setsContainer.querySelectorAll('.weight-input').forEach(input => {
         input.addEventListener('input', (e) => {
             const index = e.target.getAttribute('data-index');
@@ -283,7 +282,6 @@ export function renderWorkoutList() {
 }
 
 export function removeExerciseFromWorkout(index) {
-    // FIX 2: Clear active exercise selection if removing the exercise currently being edited
     const removedEx = store.currentWorkoutExercises[index];
     if (store.selectedExercise && removedEx.id === store.selectedExercise.id) {
         store.selectedExercise = null;
@@ -309,9 +307,9 @@ export function addExerciseToWorkout() {
     const exerciseData = {
         id: store.selectedExercise.id,
         group_id: store.selectedExercise.group_id,
-        variation_id: store.selectedExercise.variation_id, // FIX 4: Corrected to store.selectedExercise.variation_id
+        variation_id: store.selectedExercise.variation_id,
         exerciseName: store.selectedExercise.name,
-        sets: store.currentSets.map(set => ({ ...set }))
+        sets: store.currentSets
     };
     
     if (existingIndex > -1) {
@@ -353,7 +351,7 @@ export function selectExerciseFromList(index) {
     
     if (ex) {
         store.selectedExercise = ex;
-        store.currentSets = exData.sets.map(set => ({ ...set }));
+        store.currentSets = exData.sets;
         document.getElementById('select-exercise').value = ex.group_id;
         updateLoggerUI();
         selectExerciseFromResults(ex);
@@ -364,7 +362,7 @@ export function saveWorkout() {
     if (store.selectedExercise) {
         const listIndex = store.currentWorkoutExercises.findIndex(ex => ex.id === store.selectedExercise.id);
         if (listIndex > -1) {
-            store.currentWorkoutExercises[listIndex].sets = store.currentSets.map(set => ({ ...set }));
+            store.currentWorkoutExercises[listIndex].sets = store.currentSets;
         }
     }
 
@@ -373,7 +371,7 @@ export function saveWorkout() {
         rawExercises.push({
             id: store.selectedExercise.id,
             exerciseName: store.selectedExercise.name,
-            sets: store.currentSets.map(set => ({ ...set }))
+            sets: store.currentSets
         });
     }
 
@@ -398,7 +396,12 @@ export function saveWorkout() {
         exercises: cleanExercises
     };
 
-    let history = JSON.parse(localStorage.getItem('gym_history') || '[]');
+    let history = [];
+    try {
+        history = JSON.parse(localStorage.getItem('gym_history') || '[]');
+    } catch (e) {
+        history = [];
+    }
     history.unshift(workout);
     if (history.length > 100) history = history.slice(0, 100);
     
@@ -443,7 +446,7 @@ export function repeatWorkout(workout) {
         const firstEx = store.currentWorkoutExercises[0];
         const originalEx = store.EXERCISES.find(e => e.id === firstEx.id);
         store.selectedExercise = originalEx;
-        store.currentSets = firstEx.sets.map(set => ({ ...set }));
+        store.currentSets = firstEx.sets;
         
         document.getElementById('workout-name-input').value = workout.name || "Repeated Workout";
         document.getElementById('select-exercise').value = firstEx.group_id;
