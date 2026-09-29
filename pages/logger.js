@@ -102,7 +102,7 @@ export function selectExerciseFromResults(ex) {
     `;
 
     const existingInList = store.currentWorkoutExercises.find(item => item.id === ex.id);
-    if (existingInList && store.currentSets.length === 0) {
+    if (existingInList && store.currentSets.length === 0 && existingInList.sets.length > 0) {
         store.currentSets = existingInList.sets.map(set => ({ ...set }));
     } else if (store.currentSets.length === 0) {
         addSet();
