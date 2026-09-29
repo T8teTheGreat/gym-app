@@ -18,34 +18,56 @@ export function populateExerciseDropdown() {
         }).join('');
 }
 
-export function updateLoggerUI(searchQuery = document.getElementById('logger-exercise-search')?.value || '') {
-    const groupId = document.getElementById('select-exercise')?.value;
-    const resultsContainer = document.getElementById('logger-exercise-results');
-    if (!resultsContainer) return;
+export function updateLoggerUI(searchQuery) {
+    const selectExercise = document.getElementById('select-exercise');
+    const loggerExerciseSearch = document.getElementById('logger-exercise-search');
+    const loggerExerciseResults = document.getElementById('logger-exercise-results');
+    const query = searchQuery !== undefined ? searchQuery : (loggerExerciseSearch ? loggerExerciseSearch.value : '');
+    const groupId = selectExercise ? selectExercise.value : '';
 
-    let filtered = store.EXERCISES || [];
-    if (groupId) filtered = filtered.filter(ex => ex.group_id == groupId);
-    if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        filtered = filtered.filter(ex => 
-            ex.name.toLowerCase().includes(query) || 
-            ex.description?.toLowerCase().includes(query)
+    if (loggerExerciseResults) {
+        loggerExerciseResults.innerHTML = '';
+        loggerExerciseResults.style.display = 'none';
+    }
+
+    let filteredExercises = store.EXERCISES || [];
+    
+    if (groupId) {
+        filteredExercises = filteredExercises.filter(ex => ex.group_id === groupId);
+    }
+
+    if (query) {
+        filteredExercises = filteredExercises.filter(ex => 
+            ex.name.toLowerCase().includes(query.toLowerCase()) ||
+            (ex.description && ex.description.toLowerCase().includes(query.toLowerCase()))
         );
     }
 
-    if ((searchQuery || groupId) && filtered.length > 0) {
-        resultsContainer.style.display = 'block';
-        resultsContainer.innerHTML = filtered.map(ex => `
-            <div class="exercise-result-item" data-id="${ex.id}" style="padding: 10px 12px; border-bottom: 1px solid var(--border); cursor: pointer;">
+    if ((query || groupId) && filteredExercises.length > 0) {
+        loggerExerciseResults.style.display = 'block';
+        filteredExercises.forEach(ex => {
+            const item = document.createElement('div');
+            item.className = 'exercise-result-item';
+            item.style.cssText = 'padding: 10px 12px; border-bottom: 1px solid var(--border); cursor: pointer;';
+            item.innerHTML = `
                 <div style="font-weight: bold;">${escapeHTML(ex.name)}</div>
-                <div style="font-size: 0.8rem; color: var(--text-light);">${escapeHTML(ex.description?.substring(0, 40) || '')}...</div>
-            </div>
-        `).join('');
-    } else {
-        resultsContainer.style.display = 'none';
+                <div style="font-size: 0.8rem; color: var(--text-light);">${escapeHTML(ex.description ? ex.description.substring(0, 40) : '')}...</div>
+            `;
+
+            item.onclick = () => {
+                if (loggerExerciseSearch) loggerExerciseSearch.value = '';
+                if (loggerExerciseResults) loggerExerciseResults.style.display = 'none';
+                selectExerciseFromResults(ex);
+            };
+
+            loggerExerciseResults.appendChild(item);
+        });
     }
 
-    if (store.selectedExercise) renderSets();
+    // Only render sets if both selected exercise and currentSets are defined
+    if (store.selectedExercise && Array.isArray(store.currentSets)) {
+        renderSets();
+    }
 }
 
 // Global delegated listener for exercise selection
@@ -72,31 +94,46 @@ export function selectExerciseForLogging(id) {
 }
 
 export function selectExerciseFromResults(ex) {
+    if (!ex) return;
+
     store.selectedExercise = ex;
-    document.getElementById('select-exercise').value = ex.group_id;
+    const selectExercise = document.getElementById('select-exercise');
+    if (selectExercise) {
+        selectExercise.value = ex.group_id;
+    }
     
-    const info = document.getElementById('exercise-info');
-    if (info) {
-        info.innerHTML = `
+    const exerciseInfo = document.getElementById('exercise-info');
+    if (exerciseInfo) {
+        exerciseInfo.innerHTML = `
             <strong style="font-size: 1.2rem;">${escapeHTML(ex.name)}</strong><br>
             ${escapeHTML(ex.description || '')}<br>
             <small>Equipment: ${escapeHTML(ex.equipment || '')}</small>
         `;
     }
 
-    let activeEx = store.currentWorkoutExercises.find(item => item.id === ex.id);
-    if (!activeEx) {
-        activeEx = {
-            ...ex,
+    // Match exact string IDs safely
+    let existingInList = store.currentWorkoutExercises.find(item => item.id === ex.id);
+
+    if (!existingInList) {
+        existingInList = {
+            id: ex.id,
+            group_id: ex.group_id,
+            variation_id: ex.variation_id,
             exerciseName: ex.name,
-            sets: [{ weight: '', reps: '', unit: getExerciseUnit(ex.id), completed: false }]
+            sets: [{
+                weight: '',
+                reps: '',
+                unit: getExerciseUnit(ex.id) || 'kg',
+                completed: false
+            }]
         };
-        store.currentWorkoutExercises.push(activeEx);
+        store.currentWorkoutExercises.push(existingInList);
     }
 
-    // Direct reference - no manual syncing required later
-    store.currentSets = activeEx.sets; 
-    
+    // Explicitly link active set state FIRST
+    store.currentSets = existingInList.sets || [];
+
+    // Render sets and updated workout list
     renderSets();
     renderWorkoutList();
 }
