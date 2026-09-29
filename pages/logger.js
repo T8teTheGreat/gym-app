@@ -139,6 +139,7 @@ export function renderSets() {
 export function toggleSetCompletion(index) {
     store.currentSets[index].completed = !store.currentSets[index].completed;
     renderSets(); 
+    syncCurrentSetsToList();
 }
 
 export function addSet() {
@@ -219,8 +220,12 @@ export function renderWorkoutList() {
         div.dataset.index = index;
         div.style.cssText = 'padding: 8px 12px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;';
         
+        const boxes = (ex.sets || []).map(set => 
+            `<span style="width: 6px; height: 6px; border-radius: 2px; background-color: ${set.completed ? '#22c55e' : '#94a3b8'}; display: inline-block; margin-left: 2px;"></span>`
+        ).join('');
+
         div.innerHTML = `
-            <span style="font-size: 0.9rem;">${escapeHTML(ex.exerciseName)} (${ex.sets.length} sets)</span>
+            <span style="font-size: 0.9rem;">${escapeHTML(ex.exerciseName)} <span style="display: flex; gap: 2px; margin-left: 8px;">${boxes}</span></span>
             <button class="btn remove-ex-btn" data-index="${index}" style="padding: 4px 8px; width: auto; background: #ef4444; color: white; font-size: 0.8rem;">×</button>
         `;
         workoutExercisesList.appendChild(div);
