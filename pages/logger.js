@@ -287,31 +287,52 @@ export const addExerciseToWorkout = () => renderWorkoutList();
 // --- STORAGE ---
 
 export function saveWorkout() {
+    // 1. Safely filter out incomplete or invalid sets
     const cleanExercises = store.currentWorkoutExercises
-        .map(ex => ({ ...ex, sets: ex.sets.filter(s => s.weight !== '' && s.reps !== '') }))
+        .map(ex => ({
+            ...ex,
+            sets: (ex.sets || []).filter(s => 
+                s.weight !== '' && 
+                s.reps !== '' && 
+                !isNaN(s.weight) && 
+                !isNaN(s.reps)
+            )
+        }))
         .filter(ex => ex.sets.length > 0);
 
     if (!cleanExercises.length) return showToast("Please add at least one valid set.", "error");
 
+    // 2. Properly handle fallback for empty string input
+    const nameInput = document.getElementById('workout-name-input');
+    const workoutName = nameInput?.value.trim() || "Untitled Workout";
+
     const newWorkout = {
         id: generateId(),
-        name: document.getElementById('workout-name-input').value || "Untitled Workout",
+        name: workoutName,
         date: new Date().toLocaleString(),
         exercises: cleanExercises
     };
 
+    // 3. Persist to localStorage
     let history = JSON.parse(localStorage.getItem('gym_history') || '[]');
     history = [newWorkout, ...history].slice(0, 100);
     localStorage.setItem('gym_history', JSON.stringify(history));
     
-    // Reset state
+    // 4. Reset store state
     store.currentWorkoutExercises = [];
     store.currentSets = [];
     store.selectedExercise = null;
-    document.getElementById('workout-name-input').value = "";
-    document.getElementById('select-exercise').value = "";
-    document.getElementById('exercise-info').innerHTML = '';
+
+    // 5. Safe DOM resets with optional chaining/null checks
+    if (nameInput) nameInput.value = "";
     
+    const selectExercise = document.getElementById('select-exercise');
+    if (selectExercise) selectExercise.value = "";
+
+    const exerciseInfo = document.getElementById('exercise-info');
+    if (exerciseInfo) exerciseInfo.innerHTML = "";
+
+    // 6. UI feedback & Navigation
     showToast("Workout saved!");
     renderWorkoutList(); 
     updateLoggerUI();
