@@ -1,12 +1,12 @@
-// app.js
 import { EXERCISES_DATA } from './data/exercises.js';
 import { store } from './store.js';
 import { showView } from './navigation.js';
 import { populateMuscleFilter, renderLibrary, filterLibrary } from './pages/library.js';
+// Removed populateExerciseDropdown and addExerciseToWorkout imports
 import { 
-    populateExerciseDropdown, updateLoggerUI, toggleSetCompletion, 
+    updateLoggerUI, toggleSetCompletion, 
     toggleUnit, removeSet, syncCurrentSetsToList, removeExerciseFromWorkout, 
-    selectExerciseFromList, addExerciseToWorkout, addSet, saveWorkout 
+    selectExerciseFromList, addSet, saveWorkout 
 } from './pages/logger.js';
 import { loadHistory } from './pages/history.js';
 
@@ -14,16 +14,11 @@ function init() {
     try {
         store.EXERCISES = EXERCISES_DATA;
         
-        const selectExercise = document.getElementById('select-exercise');
         const loggerExerciseSearch = document.getElementById('logger-exercise-search');
         const setsContainer = document.getElementById('sets-container');
         const workoutExercisesList = document.getElementById('workout-exercises-list');
 
-        selectExercise.addEventListener('change', () => {
-            if (loggerExerciseSearch) loggerExerciseSearch.value = '';
-            store.currentSets = [];
-            updateLoggerUI();
-        });        
+        // Note: The select-exercise change listener was completely removed here
         
         setsContainer.addEventListener('input', (e) => {
             const index = parseInt(e.target.dataset.index, 10);
@@ -79,16 +74,14 @@ function init() {
             }
         }
 
-        // Attach global button events dynamically replacing inline HTML events
         document.getElementById('search-input').addEventListener('input', filterLibrary);
         document.getElementById('muscle-filter').addEventListener('change', filterLibrary);
         document.getElementById('add-set-btn')?.addEventListener('click', addSet);
-        document.getElementById('add-exercise-btn')?.addEventListener('click', addExerciseToWorkout);
         document.getElementById('save-workout-btn')?.addEventListener('click', saveWorkout);
+        // Removed add-exercise-btn click event
 
         populateMuscleFilter();
         renderLibrary(store.EXERCISES);
-        populateExerciseDropdown();
         loadHistory();
         updateLoggerUI();
         showView('logger');
@@ -97,8 +90,6 @@ function init() {
     }
 }
 
-// Bootstrap Application
 init();
 
-// Map UI view switching to the global window object to attach to navigation buttons
 window.showView = showView;

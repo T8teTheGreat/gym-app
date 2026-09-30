@@ -19,11 +19,9 @@ export function populateExerciseDropdown() {
 }
 
 export function updateLoggerUI(searchQuery) {
-    const selectExercise = document.getElementById('select-exercise');
     const loggerExerciseSearch = document.getElementById('logger-exercise-search');
     const loggerExerciseResults = document.getElementById('logger-exercise-results');
     const query = searchQuery !== undefined ? searchQuery : (loggerExerciseSearch ? loggerExerciseSearch.value : '');
-    const groupId = selectExercise ? selectExercise.value : '';
 
     if (loggerExerciseResults) {
         loggerExerciseResults.innerHTML = '';
@@ -31,11 +29,8 @@ export function updateLoggerUI(searchQuery) {
     }
 
     let filteredExercises = store.EXERCISES || [];
-    
-    if (groupId) {
-        filteredExercises = filteredExercises.filter(ex => ex.group_id === groupId);
-    }
 
+    // Filter by name only
     if (query) {
         filteredExercises = filteredExercises.filter(ex => 
             ex.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -43,7 +38,7 @@ export function updateLoggerUI(searchQuery) {
         );
     }
 
-    if ((query || groupId) && filteredExercises.length > 0) {
+    if (query && filteredExercises.length > 0) {
         loggerExerciseResults.style.display = 'block';
         filteredExercises.forEach(ex => {
             const item = document.createElement('div');
@@ -64,7 +59,6 @@ export function updateLoggerUI(searchQuery) {
         });
     }
 
-    // Only render sets if both selected exercise and currentSets are defined
     if (store.selectedExercise && Array.isArray(store.currentSets)) {
         renderSets();
     }
@@ -86,32 +80,56 @@ document.getElementById('logger-exercise-results')?.addEventListener('click', (e
 export function selectExerciseForLogging(id) {
     const ex = store.EXERCISES.find(e => e.id === id);
     if (ex) {
-        document.getElementById('select-exercise').value = ex.group_id;
         document.getElementById('logger-exercise-search').value = '';
         selectExerciseFromResults(ex);
     }
     showView('logger');
 }
 
-export function selectExerciseFromResults(ex) {
+export function selectExerciseFromResults(ex, replaceIndex = -1) {
     if (!ex) return;
 
     store.selectedExercise = ex;
-    const selectExercise = document.getElementById('select-exercise');
-    if (selectExercise) {
-        selectExercise.value = ex.group_id;
-    }
-    
     const exerciseInfo = document.getElementById('exercise-info');
+    
     if (exerciseInfo) {
+        // Find variations in the same group
+        const variations = store.EXERCISES.filter(e => e.group_id === ex.group_id);
+        let variationHTML = '';
+        
+        if (variations.length > 1) {
+            variationHTML = `
+                <div style="position: relative; display: inline-block;">
+                    <span style="font-size: 1.5rem; cursor: pointer; color: var(--primary);">▼</span>
+                    <select id="variation-select" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+                        ${variations.map(v => `<option value="${v.id}" ${v.id === ex.id ? 'selected' : ''}>${escapeHTML(v.name)}</option>`).join('')}
+                    </select>
+                </div>
+            `;
+        }
+
         exerciseInfo.innerHTML = `
-            <strong style="font-size: 1.2rem;">${escapeHTML(ex.name)}</strong><br>
-            ${escapeHTML(ex.description || '')}<br>
-            <small>Equipment: ${escapeHTML(ex.equipment || '')}</small>
+            <div style="flex: 1;">
+                <strong style="font-size: 1.2rem;">${escapeHTML(ex.name)}</strong><br>
+                ${escapeHTML(ex.description || '')}<br>
+                <small>Equipment: ${escapeHTML(ex.equipment || '')}</small>
+            </div>
+            ${variationHTML}
         `;
+
+        const variationSelect = document.getElementById('variation-select');
+        if (variationSelect) {
+            variationSelect.addEventListener('change', (e) => {
+                const newEx = store.EXERCISES.find(item => item.id == e.target.value);
+                if (newEx) {
+                    const currentIndex = store.currentWorkoutExercises.findIndex(item => item.id === ex.id);
+                    selectExerciseFromResults(newEx, currentIndex);
+                }
+            });
+        }
     }
 
-    // Match exact string IDs safely
+    // Handle adding to or replacing in the list
     let existingInList = store.currentWorkoutExercises.find(item => item.id === ex.id);
 
     if (!existingInList) {
@@ -120,20 +138,26 @@ export function selectExerciseFromResults(ex) {
             group_id: ex.group_id,
             variation_id: ex.variation_id,
             exerciseName: ex.name,
-            sets: [{
-                weight: '',
-                reps: '',
-                unit: getExerciseUnit(ex.id) || 'kg',
-                completed: false
-            }]
+            sets: []
         };
-        store.currentWorkoutExercises.push(existingInList);
+        
+        if (replaceIndex > -1) {
+            store.currentWorkoutExercises.splice(replaceIndex, 1, existingInList);
+        } else {
+            store.currentWorkoutExercises.push(existingInList);
+        }
     }
 
-    // Explicitly link active set state FIRST
     store.currentSets = existingInList.sets || [];
 
-    // Render sets and updated workout list
+    // Automatically add an empty set whether selected from search or dropdown
+    store.currentSets.push({
+        weight: '',
+        reps: '',
+        unit: getExerciseUnit(ex.id) || 'kg',
+        completed: false
+    });
+
     renderSets();
     renderWorkoutList();
 }
