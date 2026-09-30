@@ -105,7 +105,7 @@ export function selectExerciseFromResults(ex, replaceIndex = -1) {
         if (variations.length > 1) {
             variationHTML = `
                 <div style="position: relative; display: inline-block;">
-                    <span style="font-size: 1.5rem; cursor: pointer; color: var(--primary);">▼</span>
+                    <span style="font-size: 1.5rem; cursor: pointer; color: var(--border);">▼</span>
                     <select id="variation-select" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
                         ${variations.map(v => `<option value="${v.id}" ${v.id === ex.id ? 'selected' : ''}>${escapeHTML(v.name)}</option>`).join('')}
                     </select>
@@ -236,7 +236,7 @@ export function renderWorkoutList() {
     if (!list) return;
     
     list.innerHTML = store.currentWorkoutExercises.map((ex, index) => {
-        const dots = (ex.sets || []).map(set => `<span style="width: 8px; height: 8px; border-radius: 50%; background-color: ${set.completed ? '#22c55e' : '#94a3b8'}; margin-left: 4px; display: inline-block;"></span>`).join('');
+        const dots = (ex.sets || []).map(set => `<span style="width: 8px; height: 8px; border-radius: 50%; background-color: ${set.completed ? '#22c55e' : 'var(--border)'}; margin-left: 4px; display: inline-block;"></span>`).join('');
 
         return `<div class="card workout-ex-card" draggable="true" data-index="${index}" style="padding: 8px 12px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
             <span style="font-size: 0.9rem; display: flex; align-items: center;">${escapeHTML(ex.exerciseName)} <span style="display: flex; gap: 4px; margin-left: 8px;">${dots}</span></span>
