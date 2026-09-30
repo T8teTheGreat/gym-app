@@ -93,6 +93,21 @@ function init() {
     }
 }
 
+//prevent browser from caching sw.js as project develops
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js', {
+      updateViaCache: 'none'
+    })
+    .then(registration => {
+      console.log('SW registered:', registration);
+    })
+    .catch(error => {
+      console.error('SW registration failed:', error);
+    });
+  });
+}
+
 init();
 
 window.showView = showView;
