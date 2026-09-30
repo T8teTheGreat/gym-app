@@ -179,7 +179,7 @@ export function renderSets() {
     const unit = getExerciseUnit(store.selectedExercise.id);
     container.innerHTML = store.currentSets.map((set, i) => `
         <div class="set-row ${set.completed ? 'completed' : ''}" style="display: flex; align-items: center; gap: 8px;">
-            <span class="set-label ${set.completed ? 'completed' : ''}" style="width: 40px; flex-shrink: 0; user-select: none;">Set ${i + 1}</span>
+            <span class="set-label ${set.completed ? 'completed' : ''}" data-index="${i}" style="width: 40px; flex-shrink: 0; user-select: none;">Set ${i + 1}</span>
             <input type="number" class="weight-input" data-index="${i}" placeholder="Weight" value="${set.weight}" style="flex: 1; min-width: 0;">
             <button class="btn btn-sm toggle-unit-btn" data-index="${i}">${unit === 'kg' ? 'lb' : 'kg'}</button>
             <input type="number" class="reps-input" data-index="${i}" placeholder="Reps" value="${set.reps}" style="flex: 1; min-width: 0;">
