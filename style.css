@@ -162,11 +162,21 @@ input, select {
     margin-top: 10px;
 }
 
+/* Small buttons for set rows */
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* Logger Specific */
 .set-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     margin-bottom: 8px;
 }
 

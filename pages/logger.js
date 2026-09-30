@@ -112,7 +112,7 @@ export function selectExerciseFromResults(ex, replaceIndex = -1) {
                 </div>
             `;
         }
-
+        
         exerciseInfo.innerHTML = `
             <div style="flex: 1;">
                 <strong style="font-size: 1.2rem;">${escapeHTML(ex.name)}</strong><br>
@@ -136,7 +136,7 @@ export function selectExerciseFromResults(ex, replaceIndex = -1) {
 
     // Handle adding to or replacing in the list
     let existingInList = store.currentWorkoutExercises.find(item => item.id === ex.id);
-
+    
     if (!existingInList) {
         existingInList = {
             id: ex.id,
@@ -151,20 +151,25 @@ export function selectExerciseFromResults(ex, replaceIndex = -1) {
         } else {
             store.currentWorkoutExercises.push(existingInList);
         }
+
+        // Only add a new set if it's a brand new exercise in the workout
+        store.currentSets = [{
+            weight: '',
+            reps: '',
+            unit: getExerciseUnit(ex.id) || 'kg',
+            completed: false
+        }];
+
+        // Sync the sets to the list so dots appear
+        existingInList.sets = store.currentSets;
+    } else {
+        // Just load the existing sets if it's already in the workout
+        store.currentSets = existingInList.sets || [];
     }
-
-    store.currentSets = existingInList.sets || [];
-
-    // Automatically add an empty set whether selected from search or dropdown
-    store.currentSets.push({
-        weight: '',
-        reps: '',
-        unit: getExerciseUnit(ex.id) || 'kg',
-        completed: false
-    });
-
+    
     renderSets();
     renderWorkoutList();
+
 }
 
 export function renderSets() {
@@ -174,11 +179,11 @@ export function renderSets() {
     const unit = getExerciseUnit(store.selectedExercise.id);
     container.innerHTML = store.currentSets.map((set, i) => `
         <div class="set-row ${set.completed ? 'completed' : ''}" style="display: flex; align-items: center; gap: 8px;">
-            <span class="set-label ${set.completed ? 'completed' : ''}" style="width: 50px; flex-shrink: 0; user-select: none;">Set ${i + 1}</span>
+            <span class="set-label ${set.completed ? 'completed' : ''}" style="width: 40px; flex-shrink: 0; user-select: none;">Set ${i + 1}</span>
             <input type="number" class="weight-input" data-index="${i}" placeholder="Weight" value="${set.weight}" style="flex: 1; min-width: 0;">
-            <button class="btn toggle-unit-btn" data-index="${i}" style="padding: 8px 12px;">${unit === 'kg' ? 'lb' : 'kg'}</button>
+            <button class="btn btn-sm toggle-unit-btn" data-index="${i}">${unit === 'kg' ? 'lb' : 'kg'}</button>
             <input type="number" class="reps-input" data-index="${i}" placeholder="Reps" value="${set.reps}" style="flex: 1; min-width: 0;">
-            <button class="btn remove-set-btn" data-index="${i}" style="padding: 8px 12px;">×</button>
+            <button class="btn btn-sm remove-set-btn" data-index="${i}" style="background: #ef4444; color: white; border-radius: 4px;">×</button>
         </div>
     `).join('');
 }
@@ -231,16 +236,12 @@ export function renderWorkoutList() {
     if (!list) return;
     
     list.innerHTML = store.currentWorkoutExercises.map((ex, index) => {
-        const dots = (ex.sets || []).map(set => 
-            `<span style="width: 6px; height: 6px; border-radius: 2px; background-color: ${set.completed ? '#22c55e' : '#94a3b8'}; margin-left: 2px; display: inline-block;"></span>`
-        ).join('');
+        const dots = (ex.sets || []).map(set => `<span style="width: 8px; height: 8px; border-radius: 50%; background-color: ${set.completed ? '#22c55e' : '#94a3b8'}; margin-left: 4px; display: inline-block;"></span>`).join('');
 
-        return `
-            <div class="card workout-ex-card" draggable="true" data-index="${index}" style="padding: 8px 12px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                <span style="font-size: 0.9rem;">${escapeHTML(ex.exerciseName)} <span style="display: flex; gap: 2px; margin-left: 8px;">${dots}</span></span>
-                <button class="btn remove-ex-btn" data-index="${index}" style="padding: 4px 8px; background: #ef4444; color: white;">×</button>
-            </div>
-        `;
+        return `<div class="card workout-ex-card" draggable="true" data-index="${index}" style="padding: 8px 12px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+            <span style="font-size: 0.9rem; display: flex; align-items: center;">${escapeHTML(ex.exerciseName)} <span style="display: flex; gap: 4px; margin-left: 8px;">${dots}</span></span>
+            <button class="btn btn-sm remove-ex-btn" data-index="${index}" style="background: #ef4444; color: white;">×</button>
+        </div>`;
     }).join('');
 
     // Reattach drag events
