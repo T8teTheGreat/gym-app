@@ -2,7 +2,6 @@ import { EXERCISES_DATA } from './data/exercises.js';
 import { store } from './store.js';
 import { showView } from './navigation.js';
 import { populateMuscleFilter, renderLibrary, filterLibrary } from './pages/library.js';
-// Removed populateExerciseDropdown and addExerciseToWorkout imports
 import { 
     updateLoggerUI, toggleSetCompletion, 
     toggleUnit, removeSet, syncCurrentSetsToList, removeExerciseFromWorkout, 
@@ -18,7 +17,12 @@ function init() {
         const setsContainer = document.getElementById('sets-container');
         const workoutExercisesList = document.getElementById('workout-exercises-list');
 
-        // Note: The select-exercise change listener was completely removed here
+        // Bind input event so typing triggers logger UI update instantly
+        if (loggerExerciseSearch) {
+            loggerExerciseSearch.addEventListener('input', (e) => {
+                updateLoggerUI(e.target.value);
+            });
+        }
         
         setsContainer.addEventListener('input', (e) => {
             const index = parseInt(e.target.dataset.index, 10);
@@ -78,7 +82,6 @@ function init() {
         document.getElementById('muscle-filter').addEventListener('change', filterLibrary);
         document.getElementById('add-set-btn')?.addEventListener('click', addSet);
         document.getElementById('save-workout-btn')?.addEventListener('click', saveWorkout);
-        // Removed add-exercise-btn click event
 
         populateMuscleFilter();
         renderLibrary(store.EXERCISES);

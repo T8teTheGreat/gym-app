@@ -21,16 +21,16 @@ export function populateExerciseDropdown() {
 export function updateLoggerUI(searchQuery) {
     const loggerExerciseSearch = document.getElementById('logger-exercise-search');
     const loggerExerciseResults = document.getElementById('logger-exercise-results');
-    const query = searchQuery !== undefined ? searchQuery : (loggerExerciseSearch ? loggerExerciseSearch.value : '');
+    const query = (searchQuery !== undefined ? searchQuery : (loggerExerciseSearch ? loggerExerciseSearch.value : '')).trim();
 
     if (loggerExerciseResults) {
         loggerExerciseResults.innerHTML = '';
         loggerExerciseResults.style.display = 'none';
+        loggerExerciseResults.classList.add('hidden');
     }
 
     let filteredExercises = store.EXERCISES || [];
 
-    // Filter by name only
     if (query) {
         filteredExercises = filteredExercises.filter(ex => 
             ex.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -38,8 +38,10 @@ export function updateLoggerUI(searchQuery) {
         );
     }
 
-    if (query && filteredExercises.length > 0) {
+    if (query && filteredExercises.length > 0 && loggerExerciseResults) {
         loggerExerciseResults.style.display = 'block';
+        loggerExerciseResults.classList.remove('hidden');
+
         filteredExercises.forEach(ex => {
             const item = document.createElement('div');
             item.className = 'exercise-result-item';
@@ -51,7 +53,10 @@ export function updateLoggerUI(searchQuery) {
 
             item.onclick = () => {
                 if (loggerExerciseSearch) loggerExerciseSearch.value = '';
-                if (loggerExerciseResults) loggerExerciseResults.style.display = 'none';
+                if (loggerExerciseResults) {
+                    loggerExerciseResults.style.display = 'none';
+                    loggerExerciseResults.classList.add('hidden');
+                }
                 selectExerciseFromResults(ex);
             };
 
