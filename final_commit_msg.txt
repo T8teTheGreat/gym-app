@@ -1,0 +1,1 @@
+Remove commit_msg.txt and add .gitignore
