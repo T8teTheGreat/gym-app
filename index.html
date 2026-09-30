@@ -37,25 +37,25 @@
             <!-- Logger View -->
             <section id="view-logger" class="hidden">
                 <div id="workout-name-input-container">
-                    <input type="text" id="workout-name-input" placeholder="e.g. Chest Day, Morning Session" style="margin-top: 4px; border-color: var(--border);">
-                </div>
-                <div id="workout-exercises-list"></div>
-                <div id="exercise-selection-container" style="position: relative;">
-                    <label>Select Exercise</label>
-                    <input type="text" id="logger-exercise-search" placeholder="Search exercises (e.g. 'bench' or 'chest')..." style="margin-bottom: 4px; width: 100%;">
-                    <div id="logger-exercise-results" class="results-list hidden" style="position: absolute; z-index: 1001; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: -4px; margin-bottom: 0; display: none;"></div>
-                    <select id="select-exercise" class="group-filter"></select>
+                    <input type="text" id="workout-name-input" placeholder="Name your workout (e.g. Back Day)" style="margin-top: 4px; border-color: var(--border);">
                 </div>
                 
-                <div id="exercise-info" class="info-box">
+                <div id="exercise-selection-container" style="position: relative;">
+                    <input type="text" id="logger-exercise-search" placeholder="Search for exercises by name..." style="margin-bottom: 4px; width: 100%;">
+                    <div id="logger-exercise-results" class="results-list hidden" style="position: absolute; z-index: 1001; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: -4px; margin-bottom: 0; display: none;"></div>
+                </div>
+                
+                <div id="exercise-info" class="info-box" style="display: flex; justify-content: space-between; align-items: center;">
                     Select an exercise to see details.
                 </div>
+
+                <div id="workout-exercises-list"></div>
 
                 <div id="sets-container">
                     <!-- Sets added here dynamically -->
                 </div>
+                
                 <button id="add-set-btn" class="btn btn-add">+ Add Set</button>
-                <button id="add-exercise-btn" class="btn btn-primary" style="margin-top: 10px;">+ Add Exercise</button>
                 <button id="save-workout-btn" class="btn btn-secondary" style="margin-top: 10px;">Save Workout</button>
             </section>
 
