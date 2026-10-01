@@ -64,7 +64,7 @@ export function updateLoggerUI(searchQuery) {
         });
     }
 
-    if (store.selectedExercise && Array.isArray(store.currentSets)) {
+    if (Array.isArray(store.currentSets)) {
         renderSets();
     }
 }
@@ -174,7 +174,12 @@ export function selectExerciseFromResults(ex, replaceIndex = -1) {
 
 export function renderSets() {
     const container = document.getElementById('sets-container');
-    if (!container || !store.selectedExercise) return;
+    if (!container) return;
+    
+    if (!store.selectedExercise) {
+        container.innerHTML = '';
+        return;
+    }
     
     const unit = getExerciseUnit(store.selectedExercise.id);
     container.innerHTML = store.currentSets.map((set, i) => `
@@ -261,14 +266,19 @@ export function renderWorkoutList() {
 }
 
 export function removeExerciseFromWorkout(index) {
+    if (index === null || index === undefined || isNaN(index) || index < 0 || index >= store.currentWorkoutExercises.length) {
+        return;
+    }
     const removedId = store.currentWorkoutExercises[index].id;
     store.currentWorkoutExercises.splice(index, 1);
     
     if (store.selectedExercise?.id === removedId) {
         store.selectedExercise = null;
         store.currentSets = [];
-        document.getElementById('exercise-info').innerHTML = '';
-        document.getElementById('select-exercise').value = "";
+        const info = document.getElementById('exercise-info');
+        if (info) info.innerHTML = 'Select an exercise to see details.';
+        const select = document.getElementById('select-exercise');
+        if (select) select.value = "";
         updateLoggerUI();
     }
     renderWorkoutList();
