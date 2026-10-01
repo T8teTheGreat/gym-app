@@ -18,7 +18,7 @@
 </head>
 <body>
     <div class="app-container">
-        <header style="display: flex; justify-content: space-between; align-items: center;">
+        <header class="header-container">
             <h1 id="view-title">Library</h1>
             <button id="dark-mode-toggle" class="dark-mode-toggle history-toggle">☀️</button>
         </header>
@@ -37,17 +37,17 @@
             <!-- Logger View -->
             <section id="view-logger" class="hidden">
                 <div id="workout-name-input-container">
-                    <input type="text" id="workout-name-input" placeholder="Name your workout (e.g. Back Day)" style="margin-top: 4px; border-color: var(--border);">
+                    <input type="text" id="workout-name-input" placeholder="Name your workout (e.g. Back Day)" class="workout-name-input">
                 </div>
                 
                 <div id="workout-exercises-list"></div>
 
-                <div id="exercise-selection-container" style="position: relative;">
-                    <input type="text" id="logger-exercise-search" placeholder="Search for exercises by name..." style="margin-bottom: 4px; width: 100%;">
-                    <div id="logger-exercise-results" class="results-list hidden" style="position: absolute; z-index: 1001; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: -4px; margin-bottom: 0; display: none;"></div>
+                <div id="exercise-selection-container" class="exercise-selection-container">
+                    <input type="text" id="logger-exercise-search" placeholder="Search for exercises by name..." class="logger-exercise-search">
+                    <div id="logger-exercise-results" class="results-list hidden"></div>
                 </div>
                 
-                <div id="exercise-info" class="info-box" style="display: flex; justify-content: space-between; align-items: center;">
+                <div id="exercise-info" class="info-box">
                     Select an exercise to see details.
                 </div>
 
@@ -56,7 +56,7 @@
                 </div>
                 
                 <button id="add-set-btn" class="btn btn-add">+ Add Set</button>
-                <button id="save-workout-btn" class="btn btn-secondary" style="margin-top: 10px;">Save Workout</button>
+                <button id="save-workout-btn" class="btn btn-secondary btn-save-workout">Save Workout</button>
             </section>
 
             <!-- History View -->
