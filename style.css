@@ -86,7 +86,7 @@ nav {
 /* Typography */
 h1 {
     font-size: 1.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: .1rem; 
 }
 
 /* Cards */
@@ -164,7 +164,6 @@ input:focus, select:focus {
 .btn-add {
     background: var(--success);
     color: white;
-    margin-top: 10px;
 }
 
 /* Small buttons for set rows */
@@ -200,7 +199,7 @@ input:focus, select:focus {
     background: rgba(128, 128, 128, 0.1);
     padding: 12px;
     border-radius: 8px;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
     font-size: 0.9rem;
 }
 
