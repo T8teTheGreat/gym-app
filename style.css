@@ -137,6 +137,11 @@ input, select {
     color: var(--text);
 }
 
+input:focus, select:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
 .btn {
     padding: 12px 20px;
     border-radius: 8px;
