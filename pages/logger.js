@@ -115,9 +115,11 @@ export function selectExerciseFromResults(ex, replaceIndex = -1) {
         
         exerciseInfo.innerHTML = `
             <div style="flex: 1;">
-                <strong style="font-size: 1.2rem;">${escapeHTML(ex.name)}</strong><br>
-                ${escapeHTML(ex.description || '')}<br>
-                <small>Equipment: ${escapeHTML(ex.equipment || '')}</small>
+                <strong style="font-size: 1.2rem;">${escapeHTML(ex.name)}</strong>
+                <div style="margin-top: 4px; font-size: 0.85rem; line-height: 1.4;">
+                    <span style="color: var(--primary); font-weight: bold;">Primary:</span> ${escapeHTML(ex.primary_muscles?.join(', ') || '')}<br>
+                    ${ex.secondary_muscles?.length > 0 ? `<span style="color: var(--primary); font-weight: bold;">Secondary:</span> ${escapeHTML(ex.secondary_muscles.join(', '))}` : ''}
+                </div>
             </div>
             ${variationHTML}
         `;
