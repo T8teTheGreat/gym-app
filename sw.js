@@ -1,5 +1,5 @@
 // 1. Change version name whenever you edit app files
-const CACHE_NAME = 'gym-app-v2'; 
+const CACHE_NAME = 'gym-app-v2.01'; 
 
 const ASSETS = [
   '/',
